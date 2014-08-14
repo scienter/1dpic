@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include "mesh.h"
+
+
+void linearInterpolation(Domain *D,External *Ext)
+{
+   int i,s;
+   float E1,Pr,Pl,Sr,Sl,alpha;
+   float E1_i,E1_ip,Pr_i,Pr_ip,Pl_i,Pl_ip,Sr_i,Sr_ip,Sl_i,Sl_ip;
+   float extE1,extPr,extPl,extSr,extSl,extB1;
+   ptclList *p;
+   FieldElement *field;
+   field=D->field;
+
+   extE1=Ext->E1;   
+   extB1=Ext->B1;   
+   extPr=Ext->Pr;   
+   extPl=Ext->Pl;   
+   extSr=Ext->Sr;   
+   extSl=Ext->Sl;
+   
+   for(i=2; i<D->nxSub+2; i++)
+   {
+      E1_i=0.5*(field[i].E1+field[i-1].E1);
+      E1_ip=0.5*(field[i].E1+field[i+1].E1);
+      Pr_i=0.5*(field[i].Pr+field[i-1].Pr);
+      Pr_ip=0.5*(field[i].Pr+field[i+1].Pr);
+      Pl_i=0.5*(field[i].Pl+field[i-1].Pl);
+      Pl_ip=0.5*(field[i].Pl+field[i+1].Pl);
+      Sr_i=0.5*(field[i].Sr+field[i-1].Sr);
+      Sr_ip=0.5*(field[i].Sr+field[i+1].Sr);
+      Sl_i=0.5*(field[i].Sl+field[i-1].Sl);
+      Sl_ip=0.5*(field[i].Sl+field[i+1].Sl);
+
+      for(s=0; s<D->nSpecies; s++)
+      {
+         p=D->particle[i].head[s]->pt;
+         while(p)
+         {
+            alpha=p->x1;
+            E1=alpha*field[i+1].E1+(1.0-alpha)*field[i].E1;
+//            E1=alpha*E1_ip+(1.0-alpha)*E1_i;
+            Pr=alpha*Pr_ip+(1.0-alpha)*Pr_i;
+            Pl=alpha*Pl_ip+(1.0-alpha)*Pl_i;
+            Sr=alpha*Sr_ip+(1.0-alpha)*Sr_i;
+            Sl=alpha*Sl_ip+(1.0-alpha)*Sl_i;
+            p->E1=E1+extE1;
+            p->Pr=Pr+extPr;  p->Pl=Pl+extPl;
+            p->Sr=Sr+extSr;  p->Sl=Sl+extSl;
+
+            p=p->next;
+         }
+      }        
+   }
+}

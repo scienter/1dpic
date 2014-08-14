@@ -1,0 +1,81 @@
+[Probe]
+// probeX0=20e-6
+// probeX1=150e-6
+// probeX2=380e-6
+
+[Domain]
+
+ maxStep=60000
+ saveStep=100
+ saveStart=0
+
+ moving=0
+
+ minX=0
+ maxX=70e-6
+
+ boostGamma=1
+ filter=0
+ filterStep=10
+ boostSaveStart=50000
+ boostSaveEnd=50000
+ boostSaveStep=50000
+
+ divisionLambda=500	// dx is [wavelength/divisionLambda]
+ lambda=1e-6
+ probeNum=0
+
+[Laser]
+ wavelength=1.0e-6
+ a0=30
+ rU=9			//number of wave lenth
+ rD=9
+ polarity=2
+ loadPosition=0		//laser start position [m]
+
+
+[External]
+ E1=0
+ E2=0
+ E3=0
+ B1=0
+ B2=0
+ B3=5
+
+[Plasma]
+ species=Electron
+ density=5.58971e27
+ numberInCell=20
+ startIndex=0		//The starting particle index
+ velocityX=0
+ with_next_species=0
+ with_prev_species=0
+
+ Lnodes=4
+ X0=64.99e-6
+ X1=95e-6
+ X2=66e-6
+ X3=66.01e-6	//lambda_p times 2  (lambda_p=14.9e-6)
+ Ln0=0
+ Ln1=1
+ Ln2=1
+ Ln3=0
+
+[Plasma]
+ species=CPlus1
+ density=5.58971e27
+ numberInCell=20
+ startIndex=0		//The starting particle index
+ velocityX=0
+ with_next_species=0
+ with_prev_species=0
+
+ Lnodes=4
+ X0=64.99e-6
+ X1=95e-6
+ X2=66e-6
+ X3=66.01e-6	//lambda_p times 2  (lambda_p=14.9e-6)
+ Ln0=0
+ Ln1=1
+ Ln2=1
+ Ln3=0
