@@ -3,6 +3,7 @@
 typedef struct _Domain 
 {
    int currentType;
+   int interpolationType;
 
    int maxStep;
    int saveStep;

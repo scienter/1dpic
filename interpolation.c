@@ -26,12 +26,11 @@ void interpolation_2nd(Domain *D,External *Ext)
          p=D->particle[i].head[s]->pt;
          while(p)
          {
-            alpha=p->x1+i;
-            ii=(int)(alpha);
-            alpha=alpha-ii;  
+            alpha=p->x1;
+            ii=i;
             Wx1=0.5*(1-alpha)*(1-alpha);
-            Wx2=0.75-(0.5-alpha)*(0.5-alpha);          
-            Wx3=0.5*alpha*alpha;          
+            Wx2=0.75-(alpha-0.5)*(alpha-0.5);          
+            Wx3=0.5*(alpha)*(alpha);          
             E1=Wx1*field[ii-1].E1+Wx2*field[ii].E1+Wx3*field[ii+1].E1;
             Pr=Wx1*field[ii-1].Pr+Wx2*field[ii].Pr+Wx3*field[ii+1].Pr;
             Pl=Wx1*field[ii-1].Pl+Wx2*field[ii].Pl+Wx3*field[ii+1].Pl;
@@ -71,14 +70,13 @@ void interpolation_1st(Domain *D,External *Ext)
          p=D->particle[i].head[s]->pt;
          while(p)
          {
-            alpha=p->x1+i;
-            ii=(int)(alpha+0.5);
-            alpha=alpha-ii;            
-            E1=(alpha+0.5)*field[ii].E1+(0.5-alpha)*field[ii-1].E1;
-            Pr=(alpha+0.5)*field[ii].Pr+(0.5-alpha)*field[ii-1].Pr;
-            Pl=(alpha+0.5)*field[ii].Pl+(0.5-alpha)*field[ii-1].Pl;
-            Sr=(alpha+0.5)*field[ii].Sr+(0.5-alpha)*field[ii-1].Sr;
-            Sl=(alpha+0.5)*field[ii].Sl+(0.5-alpha)*field[ii-1].Sl;
+            alpha=p->x1+0.5-((int)(p->x1+0.5));
+            ii=(int)(p->x1+i+0.5)-1;
+            E1=(1-alpha)*field[ii].E1+alpha*field[ii+1].E1;
+            Pr=(1-alpha)*field[ii].Pr+alpha*field[ii+1].Pr;
+            Pl=(1-alpha)*field[ii].Pl+alpha*field[ii+1].Pl;
+            Sr=(1-alpha)*field[ii].Sr+alpha*field[ii+1].Sr;
+            Sl=(1-alpha)*field[ii].Sl+alpha*field[ii+1].Sl;
             p->E1=E1+extE1;
             p->Pr=Pr+extPr;  p->Pl=Pl+extPl;
             p->Sr=Sr+extSr;  p->Sl=Sl+extSl;

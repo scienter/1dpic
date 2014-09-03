@@ -168,9 +168,9 @@ exit(0);
        MPI_TransferF_Xminus(&D);
        MPI_TransferF_Xplus(&D);
 
-       if(D.currentType==1)
+       if(D.interpolationType==1)
          interpolation_1st(&D,&Ext);
-       else if(D.currentType==2 || D.currentType==3)
+       else if(D.interpolationType==2)
          interpolation_2nd(&D,&Ext);
 
        particlePush(&D);

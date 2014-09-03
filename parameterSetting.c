@@ -22,7 +22,9 @@ void parameterSetting(Domain *D,External *Ext, char *input)
    LaserList *L, *LNew;
 
    if(FindParameters("Domain",1,"CurrentType",input,str)) D->currentType=atoi(str);
-   else D->currentType=2;
+   else D->currentType=1;
+   if(FindParameters("Domain",1,"InterpolationType",input,str)) D->interpolationType=atoi(str);
+   else D->interpolationType=1;
 
    //Boost frame
    if(FindParameters("Domain",1,"boostGamma",input,str)) D->gamma=atof(str);

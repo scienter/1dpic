@@ -214,7 +214,7 @@ void saveField(Domain *D,int iteration)
     factor=D->gamma*(1+D->beta);
     for(i=2; i<D->nxSub+2; i++)
     {
-       x=(i-2+D->minXSub)*D->dx*D->lambda;
+       x=(i-2+D->minXSub+0.5)*D->dx*D->lambda;
        Ex=D->field[i].E1/factor;    
        Ey=D->field[i].Pr+D->field[i].Pl;
        Ez=D->field[i].Sr+D->field[i].Sl;
@@ -240,7 +240,7 @@ void saveRaman(Domain *D,int iteration)
     out = fopen(name,"w");
     for(i=2; i<D->nxSub+2; i++)
     {
-       x=(i-2+D->minXSub)*D->dx*D->lambda;
+       x=(i-2+D->minXSub+0.5)*D->dx*D->lambda;
        Pr=D->field[i].Pr;
        Pl=D->field[i].Pl;
        Sr=D->field[i].Sr;
@@ -278,8 +278,8 @@ void saveParticle(Domain *D,int iteration)
              p3=p->p3;
              gamma=sqrt(1+p->p1*p->p1+p->p2*p->p2+p->p3*p->p3);
              index=p->index;
-             fprintf(out,"%g %g %g %g %g %g\n",x1,p1,p2,p3,gamma,index);               
-//             fprintf(out,"%g %g %g %g %g %g\n",x1,p->E1,p->Pr,p->Pl,p->Sr,p->Sl);               
+//             fprintf(out,"%g %g %g %g %g %g\n",x1,p1,p2,p3,gamma,index);               
+             fprintf(out,"%g %g %g %g %g %g\n",x1,p->E1,p->Pr,p->Pl,p->Sr,p->Sl);               
              p=p->next;
           }
        }
