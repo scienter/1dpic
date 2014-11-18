@@ -58,6 +58,7 @@ void boundary(Domain *D,External *Ext)
           D->particle[i].head[s]->pt = NULL;
         }
      }     
+
 /*
      D->boost = (Boost *)malloc((D->nxSub+2)*sizeof(Boost ));
      for(i=0; i<D->nxSub+2; i++)
@@ -69,6 +70,7 @@ void boundary(Domain *D,External *Ext)
         D->boost[i].Sl=0.0;
      }
 */
+
      D->probe = (Probe **)malloc(D->probeNum*sizeof(Probe *));     
      for(i=0; i<D->probeNum; i++)
        D->probe[i] = (Probe *)malloc(D->maxStep*sizeof(Probe ));     

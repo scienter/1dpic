@@ -16,7 +16,7 @@ void parameterSetting(Domain *D,External *Ext, char *input)
    float minX, maxX, position,factor,pMinX,pMaxX,pPosition;
    float normalB,normalE,E1,E2,E3,B1,B2,B3;
    char str[100],name[100];
-   int i,rank,minT,maxT,boostSaveStep,boostSaveStart,boostSaveEnd,tmp,probeNum,fail;
+   int i,rank,minT,maxT,boostSaveStep,boostSaveStart,boostSaveEnd,tmp,probeNum,fail=0;
    float lambda;
    LoadList *LL, *New;
    LaserList *L, *LNew;
@@ -244,7 +244,7 @@ int findLaserParameters(int rank, LaserList *L,Domain *D,char *input)
    int FindParameters();
    float position;
    char name[100], str[100];
-   int fail,polarity;
+   int fail=0,polarity;
 
    if(FindParameters("Laser",rank,"polarity",input,str)) polarity=atoi(str);
    else  polarity=0;
@@ -303,7 +303,7 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
    float pointPosition;
    int whatCharge();
    char name[100], str[100];
-   int i,species,fail;
+   int i,species,fail=0;
 
    if(FindParameters("Plasma",rank,"species",input,name)) 
       species = whatSpecies(name);

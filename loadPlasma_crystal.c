@@ -8,9 +8,9 @@
 
 void loadMovingPlasma_crystal(Domain *D)
 {
-   int i,s,l,intNum,cnt,np;
+   int i,s,l,intNum,cnt,np,nc;
    float space,position,positionX,x,ne,minX;
-   float leftIndex,rightIndex,nc;
+   float leftIndex,rightIndex,ncc;
    float v1,v2,v3,gamma,mass;
    double maxwellianVelocity();
    Particle *particle;
@@ -30,19 +30,21 @@ void loadMovingPlasma_crystal(Domain *D)
  
        if(position>=LL->lpoint[l] && position<LL->lpoint[l+1])
        {
-         nc=((LL->ln[l+1]-LL->ln[l])/(LL->lpoint[l+1]-LL->lpoint[l])
+         ncc=((LL->ln[l+1]-LL->ln[l])/(LL->lpoint[l+1]-LL->lpoint[l])
             *(position-LL->lpoint[l])+LL->ln[l]);
-         nc*=LL->numberInCell;	//it is the float number of superparticles.
-         space=1.0/nc;
+         nc=ncc*LL->numberInCell;	//it is the float number of superparticles.         
+         if(nc<1) space=1.1;
+         else     space=1.0/nc;
+         
          p=particle[D->nxSub+1].head[s]->pt;
-         x=-2;
+         x=0;
          while(p)
          {
-           if(p->x1>x)  x=p->x1;
+           if(p->x1>=x)  x=p->x1;
            p=p->next;
          }
    
-         while(x<1)
+         while(x<1 && x>=0)
          {
            x+=space;
            positionX=x;
@@ -60,8 +62,8 @@ void loadMovingPlasma_crystal(Domain *D)
            New->p1=-D->gamma*D->beta+gamma*v1;
            New->p2=gamma*v2;
            New->p3=gamma*v3;
-           LL->index++;
            New->index=LL->index;            
+           LL->index++;
          }
        }
      }
@@ -95,18 +97,21 @@ void loadPlasma_crystal(Domain *D)
             n1=LL->ln[l+1];
             nc=LL->numberInCell;
             xL=LL->lpoint[l+1]-LL->lpoint[l];
-
             np=((int)((n1+n0)*xL*0.5*nc));
+
             cnt=0;
             x=(sqrt(n0*n0*(np-1)*(np-1)+(n1+n0)*(n1-n0)*cnt*(np-1))-n0*(np-1))/(n1-n0)/(np-1)*xL+LL->lpoint[l]-D->minXSub;
             i=(int)(x);
             refX=0;
+            if(i>=2 && i<=D->nxSub+1)
+            {
                p = particle[i].head[s]->pt;
                while(p)  {
                   if(refX<=p->x1)
                      refX=p->x1;
                   p=p->next;
                }
+            }
             space=1.0/LL->numberInCell*LL->ln[l];
             refX+=space;
             refX-=(int)refX;              
@@ -139,37 +144,39 @@ void loadPlasma_crystal(Domain *D)
             }
          }
 
-         else
+         else if(LL->ln[l]==LL->ln[l+1])
          {
-            nc=LL->numberInCell*LL->ln[l];
+            nc=(int)(LL->numberInCell*LL->ln[l]);
             space=1.0/((float)nc);
             leftIndex=(int)(LL->lpoint[l]-D->minXSub);
             rightIndex=(int)(LL->lpoint[l+1]-D->minXSub);
             if(rightIndex>D->nxSub+1)
-               rightIndex=D->nxSub+2; 
-            np=(int)((rightIndex-leftIndex)*nc);
-            cnt=0;
-            refX=0;
-            x=leftIndex+space*(cnt+0.5);
-            i=(int)x-1;
+               rightIndex=D->nxSub+2;
+            if(leftIndex<D->nxSub+2)
+            {
+              np=(int)((rightIndex-leftIndex)*nc);
+              cnt=0;
+              refX=0;
+              x=leftIndex+space*(cnt+0.5);
+              i=(int)(x-2);
               p = particle[i].head[s]->pt;
               while(p)  {
                 if(refX<=p->x1)
                   refX=p->x1;
                  p=p->next;
               }
-            refX+=space*1.5;
-            refX=fabs(1-refX);
-            if(refX==space) { 
-               cnt=1;
-            }
+              refX+=space*1.5;
+              refX=fabs(1-refX);
+              if(refX==space) { 
+                 cnt=1;
+              }
 
-            while(cnt<np)
-            {
-               x=leftIndex+space*(cnt+0.5)+refX;
-               i=((int)(x));
-               if(i>=2 && i<=D->nxSub+1)
-               {
+              while(cnt<np)
+              {
+                x=leftIndex+space*(cnt+0.5)+refX;
+                i=((int)(x));
+                if(i>=2 && i<=D->nxSub+1)
+                {
                   positionX=x-i;
                   
                   New = (ptclList *)malloc(sizeof(ptclList)); 
@@ -185,14 +192,15 @@ void loadPlasma_crystal(Domain *D)
                   New->p1=-D->gamma*D->beta+gamma*v1;
                   New->p2=gamma*v2;
                   New->p3=gamma*v3;
-                  LL->index++;
                   New->index=LL->index;            
-               }
-               cnt++;
-            }
-         }
+                  LL->index++;
+                }
+                cnt++;
+              }
+            }	//End of if(leftIndex)
+         }	//End of else
 
-      }
+      }		//End of for(l)
 
       LL=LL->next;
       s++;

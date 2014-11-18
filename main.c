@@ -79,8 +79,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-      if(D.crystal==1)
+      if(D.crystal==1) {
          loadPlasma_crystal(&D);
+      }
       else 
          loadPlasma_random(&D);
       t=0;
@@ -93,11 +94,10 @@ int main(int argc, char *argv[])
 //    if(D.boostOn==1)      boostLoadLaser(&D);  
     while(iteration<=D.maxStep)
     {   
-
        //probe data
        probe(&D,iteration);
-       if(D.probeNum>0)
-         findProbeParticle(&D);
+//       if(D.probeNum>0)
+//         findProbeParticle(&D);
 /*       
        if(filter==1 && iteration%filterStep==0)
        {
@@ -155,6 +155,7 @@ exit(0);
           }
        }
 
+
        //load Laser
        if(D.boostOn==0)   {
          L=D.laserList;
@@ -188,7 +189,10 @@ exit(0);
           movingDomain(&D);
           if(myrank==nTasks-1)
           {
-              loadMovingPlasma_random(&D);
+             if(D.crystal==0)
+                loadMovingPlasma_random(&D);
+             else if(D.crystal==1)
+                loadMovingPlasma_crystal(&D);
           }          
           MPI_TransferF_Moving(&D);
        }

@@ -52,10 +52,9 @@ void saveProbe(Domain *D,int iteration)
 
     for(n=0; n<D->probeNum; n++)
     { 
-      if(D->probeX[n]>=D->minXSub && D->probeX[n]<D->maxXSub)
-      {
+//      if(D->probeX[n]>=D->minXSub && D->probeX[n]<D->maxXSub)
+//      {
         x=D->probeX[n]*D->dx*D->lambda;
-
         sprintf(name,"probeRaman%d_%d",iteration,n);
         out = fopen(name,"w");
         for(i=0; i<=iteration; i++)
@@ -108,7 +107,7 @@ void saveProbe(Domain *D,int iteration)
           fprintf(out,"%g %g %g %g\n",t,J1,J2,J3);
         }             
         fclose(out);
-      }
+//      }
     }
 }
 
@@ -278,8 +277,8 @@ void saveParticle(Domain *D,int iteration)
              p3=p->p3;
              gamma=sqrt(1+p->p1*p->p1+p->p2*p->p2+p->p3*p->p3);
              index=p->index;
-//             fprintf(out,"%g %g %g %g %g %g\n",x1,p1,p2,p3,gamma,index);               
-             fprintf(out,"%g %g %g %g %g %g\n",x1,p->E1,p->Pr,p->Pl,p->Sr,p->Sl);               
+             fprintf(out,"%g %g %g %g %g %g\n",x1,p1,p2,p3,gamma,index);               
+//             fprintf(out,"%g %g %g %g %g %g\n",x1,p->E1,p->Pr,p->Pl,p->Sr,p->Sl);               
              p=p->next;
           }
        }
