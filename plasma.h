@@ -21,6 +21,7 @@ typedef struct _LoadList  {
    float criticalDensity;
    int index;  
    float num;      //exceeded number of particle which is less than 1
+   int cnt;
    int lnodes;     //longitudinal point number
    float *ln;      //longitudinal density (1 is P->density)
    float *lpoint;    //longitudinal point

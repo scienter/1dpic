@@ -385,6 +385,8 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
       LL->charge=whatCharge(species);
       LL->criticalDensity=eps0*eMass*D->omega*D->omega/eCharge/eCharge;
       LL->superP=LL->density*D->lambda*D->dx/LL->numberInCell;
+
+      LL->cnt=1;
       
    }	//end of if(species)
    

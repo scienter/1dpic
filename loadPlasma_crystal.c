@@ -9,8 +9,8 @@
 void loadMovingPlasma_crystal(Domain *D)
 {
    int i,s,l,intNum,cnt,np,nc;
-   float space,position,positionX,x,ne,minX;
-   float leftIndex,rightIndex,ncc;
+   float space,position,positionX,x,ne,minX,nn;
+   float leftIndex,rightIndex,n0,n1,refX,xL;
    float v1,v2,v3,gamma,mass;
    double maxwellianVelocity();
    Particle *particle;
@@ -30,43 +30,92 @@ void loadMovingPlasma_crystal(Domain *D)
  
        if(position>=LL->lpoint[l] && position<LL->lpoint[l+1])
        {
-         ncc=((LL->ln[l+1]-LL->ln[l])/(LL->lpoint[l+1]-LL->lpoint[l])
-            *(position-LL->lpoint[l])+LL->ln[l]);
-         nc=ncc*LL->numberInCell;	//it is the float number of superparticles.         
-         if(nc<1) space=1.1;
-         else     space=1.0/nc;
+         if(LL->ln[l]==LL->ln[l+1])
+         {
+           nc=LL->ln[l]*LL->numberInCell;	//it is the float number of superparticles.         
+           space=1.0/(float)nc;
          
-         p=particle[D->nxSub+1].head[s]->pt;
-         x=0;
-         while(p)
-         {
-           if(p->x1>=x)  x=p->x1;
-           p=p->next;
-         }
+           p=particle[D->nxSub+1].head[s]->pt;
+           x=-1;
+           while(p)
+           {
+             if(p->x1>=x)  x=p->x1;
+             p=p->next;
+           }
    
-         while(x<1 && x>=0)
-         {
-           x+=space;
-           positionX=x;
+           while(x<1)
+           {
+             x+=space;
+             positionX=x;
 
-           New = (ptclList *)malloc(sizeof(ptclList)); 
-           New->next = particle[i].head[s]->pt;
-           particle[i].head[s]->pt = New;
+             New = (ptclList *)malloc(sizeof(ptclList)); 
+             New->next = particle[i].head[s]->pt;
+             particle[i].head[s]->pt = New;
 
-           New->x1 = positionX;   New->oldX1=i+positionX;
-           New->E1=New->Pr=New->Pl=New->Sr=New->Sl=0.0;
-           v1=maxwellianVelocity(LL->temperature,mass)/velocityC;
-           v2=maxwellianVelocity(LL->temperature,mass)/velocityC;
-           v3=maxwellianVelocity(LL->temperature,mass)/velocityC;
-           gamma=1.0/sqrt(1.0-(v1*v1+v2*v2+v3*v3));
-           New->p1=-D->gamma*D->beta+gamma*v1;
-           New->p2=gamma*v2;
-           New->p3=gamma*v3;
-           New->index=LL->index;            
-           LL->index++;
+             New->x1 = positionX;   New->oldX1=i+positionX;
+             New->E1=New->Pr=New->Pl=New->Sr=New->Sl=0.0;
+             v1=maxwellianVelocity(LL->temperature,mass)/velocityC;
+             v2=maxwellianVelocity(LL->temperature,mass)/velocityC;
+             v3=maxwellianVelocity(LL->temperature,mass)/velocityC;
+             gamma=1.0/sqrt(1.0-(v1*v1+v2*v2+v3*v3));
+             New->p1=-D->gamma*D->beta+gamma*v1;
+             New->p2=gamma*v2;
+             New->p3=gamma*v3;
+             New->index=LL->index;            
+             LL->index++;
+           }
          }
-       }
-     }
+
+         else
+         {
+            n0=LL->ln[l];
+            n1=LL->ln[l+1];
+            nc=LL->numberInCell;
+            xL=LL->lpoint[l+1]-LL->lpoint[l];
+            np=((int)((n1+n0)*xL*0.5*nc));
+            if(LL->cnt==np-1)  LL->cnt=1;
+
+            refX=0;
+            p = particle[D->nxSub].head[s]->pt;
+            while(p)  {
+              if(refX<=p->x1)
+                refX=p->x1;
+              p=p->next;
+            }
+            x=(sqrt(n0*n0*(np-1)*(np-1)+(n1+n0)*(n1-n0)*LL->cnt*(np-1))-n0*(np-1))/(n1-n0)/(np-1)*xL+LL->lpoint[l];
+
+            while(x<D->minXSub+D->nxSub+2 && x>=D->minXSub+D->nxSub+1)
+            {
+              x=(sqrt(n0*n0*(np-1)*(np-1)+(n1+n0)*(n1-n0)*LL->cnt*(np-1))-n0*(np-1))/(n1-n0)/(np-1)*xL+LL->lpoint[l];
+              i=((int)x)-D->minXSub;
+
+              if(i==D->nxSub+1)
+              {
+                positionX=x-((int)x);
+                New = (ptclList *)malloc(sizeof(ptclList)); 
+                New->next = particle[D->nxSub+1].head[s]->pt;
+                particle[D->nxSub+1].head[s]->pt = New;
+
+                New->x1 = positionX;
+                New->oldX1=i+positionX;
+                New->E1=New->Pr=New->Pl=New->Sr=New->Sl=0.0;
+                v1=maxwellianVelocity(LL->temperature,mass)/velocityC;
+                v2=maxwellianVelocity(LL->temperature,mass)/velocityC;
+                v3=maxwellianVelocity(LL->temperature,mass)/velocityC;
+                gamma=1.0/sqrt(1.0-(v1*v1+v2*v2+v3*v3));
+                New->p1=-D->gamma*D->beta+gamma*v1;
+                New->p2=gamma*v2;
+                New->p3=gamma*v3;
+                LL->index++;
+                New->index=LL->index;            
+               
+                LL->cnt+=1;
+              }
+            }	//End of while
+         }	//End of else
+
+       }	//End of if(lposition)
+     }		//End of for(l)
      LL=LL->next;
      s++;
    }		//End of while(LL)  
