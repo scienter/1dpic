@@ -1,6 +1,6 @@
 #define Electron 	1
-#define HPlus0 	 	100
-#define HPlus1 	 	101
+#define HPlus0 	100
+#define HPlus1 	101
 #define HePlus0 	200
 #define HePlus1 	201
 #define HePlus2 	202

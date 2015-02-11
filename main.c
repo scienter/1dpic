@@ -96,10 +96,11 @@ int main(int argc, char *argv[])
     while(iteration<=D.maxStep)
     {   
        //probe data
-       probe(&D,iteration);
+//       probe(&D,iteration);
 //       if(D.probeNum>0)
 //         findProbeParticle(&D);
-/*       
+
+       
        if(filter==1 && iteration%filterStep==0)
        {
           MPI_TransferF_Xminus(&D);
@@ -118,7 +119,6 @@ int main(int argc, char *argv[])
 exit(0);
           }
        }
-*/
 
        //save File      
        if(iteration%D.saveStep==0 && iteration>=D.saveStart)   
@@ -156,7 +156,6 @@ exit(0);
           }
        }
 
-
        //load Laser
        if(D.boostOn==0)   {
          L=D.laserList;
@@ -175,6 +174,10 @@ exit(0);
        else if(D.interpolationType==2)
          interpolation_2nd(&D,&Ext);
 
+       //field Ionization
+       fieldIonization(&D,&I);
+
+       //particle push
        particlePush(&D);
 
        if(D.currentType==1)

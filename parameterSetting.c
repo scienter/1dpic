@@ -17,6 +17,7 @@ void parameterSetting(Domain *D,External *Ext,Ionization *I, char *input)
    float normalB,normalE,E1,E2,E3,B1,B2,B3;
    char str[100],name[100];
    int i,rank,minT,maxT,boostSaveStep,boostSaveStart,boostSaveEnd,tmp,probeNum,fail=0;
+   int minS;	//ionization
    float lambda;
    LoadList *LL, *New;
    LaserList *L, *LNew;
@@ -121,16 +122,6 @@ void parameterSetting(Domain *D,External *Ext,Ionization *I, char *input)
       printf("In [Domain], divisionLambda=? [number of devided wavelength]\n");
       fail=1;
    }
-
-   //Field ionization
-   if(FindParameters("Ionization",1,"l",input,str)) I->l=atoi(str);
-   else 	I->l=0; 
-   if(FindParameters("Ionization",1,"m",input,str)) I->m=atoi(str);
-   else 	I->m=0; 
-   if(FindParameters("Ionization",1,"numberOfMaterials",input,str)) 
-     I->numberOfMaterials=atoi(str);
-   else 	I->numberOfMaterials=0; 
-   
 
 
    //External field parameter setting
@@ -246,6 +237,41 @@ void parameterSetting(Domain *D,External *Ext,Ionization *I, char *input)
    }
    D->nSpecies = rank-1;
   
+   //Field ionization
+   if(FindParameters("Ionization",1,"l",input,str)) I->l=atoi(str);
+   else 	I->l=0; 
+   if(FindParameters("Ionization",1,"m",input,str)) I->m=atoi(str);
+   else 	I->m=0; 
+   if(FindParameters("Ionization",1,"numberOfMaterials",input,str)) 
+     I->numberOfMaterials=atoi(str);
+   else 	I->numberOfMaterials=0;
+
+   int matS[I->numberOfMaterials];
+   for(i=0; i<I->numberOfMaterials; i++)
+   {
+     sprintf(name,"material%d",i);
+     if(FindParameters("Ionization",1,name,input,str)) 
+       matS[i] = whatSnumber(str);
+   }
+    
+   I->material = (int **)malloc((I->numberOfMaterials)*sizeof(int));
+   for(i=0; i<I->numberOfMaterials; i++)
+     I->material[i] = (int *)malloc(2*sizeof(int));
+   minS=0;
+   for(i=0; i<I->numberOfMaterials; i++)
+   {
+     I->material[i][0]=minS+1;
+     I->material[i][1]=minS+matS[i]-1;
+     minS=I->material[i][1]+2;
+   }
+   if(D->nSpecies!=I->material[I->numberOfMaterials-1][1]+2)
+   {
+     printf("Make equal total plasma species (number of [Plasma]=%d) and ionization species (number of Ionization species=%d)!\n",D->nSpecies,I->material[I->numberOfMaterials-1][1]+2);
+     fail=1;
+   }
+     
+   
+   
    if(fail==1)
       exit(0);
 }
@@ -341,29 +367,33 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
       }
       if(FindParameters("Plasma",rank,"with_next_species",input,str)) 
          LL->withNextSpcs=atoi(str);
-      else  {
-         printf("in [Plasma], with_next_species=?  (0:no 1:yes)\n");
-         fail=1;
-      }
+      else  LL->withNextSpcs=0;
+//      else  {
+//         printf("in [Plasma], with_next_species=?  (0:no 1:yes)\n");
+//         fail=1;
+//      }
       if(FindParameters("Plasma",rank,"with_prev_species",input,str)) 
          LL->withPrevSpcs=atoi(str);
-      else  {
-         printf("in [Plasma], with_prev_species=?  (0:no 1:yes)\n");
-         fail=1;
-      }
+      else  LL->withPrevSpcs=0;
+//      else  {
+//         printf("in [Plasma], with_prev_species=?  (0:no 1:yes)\n");
+//         fail=1;
+//      }
       if(FindParameters("Plasma",rank,"startIndex",input,str)) 
          LL->index=atoi(str);
-      else  {
-         printf("in [Plasma], startIndex=? \n");
-         printf("It may be 0 as default.\n");
-         fail=1;
-      }
+      else LL->index=0;
+//      else  {
+//         printf("in [Plasma], startIndex=? \n");
+//         printf("It may be 0 as default.\n");
+//         fail=1;
+//      }
       if(FindParameters("Plasma",rank,"Lnodes",input,str)) LL->lnodes=atoi(str);
-      else  {
-         printf("in [Plasma], Lnodes=? \n");
-         printf("Each nodes indicates plasma density changing.\n");
-         fail=1;
-      }
+      else LL->lnodes=0;
+//      else  {
+//         printf("in [Plasma], Lnodes=? \n");
+//         printf("Each nodes indicates plasma density changing.\n");
+//         fail=1;
+//      }
    
       LL->lpoint = (float *)malloc(LL->lnodes*sizeof(float));
       LL->ln = (float *)malloc(LL->lnodes*sizeof(float));   
@@ -382,12 +412,6 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
          { printf("in [Plasma], Ln%d=? [0 <= Ln%d <= 1] \n",i,i);  fail=1; } 
       }
 
-      if(FindParameters("Plasma",rank,"pointPosition",input,str))  {
-         pointPosition=atof(str);
-         LL->pointPosition=((int)(pointPosition/D->lambda/D->dx));
-      }
-      else   LL->pointPosition=0;	//no points load.  
-
       if(FindParameters("Plasma",rank,"temperature",input,str))  
          LL->temperature=atof(str);
       else   LL->temperature=0.0;	
@@ -398,6 +422,7 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
       LL->superP=LL->density*D->lambda*D->dx/LL->numberInCell;
 
       LL->cnt=1;
+printf("species=%d, charge=%d\n",species,LL->charge);
       
    }	//end of if(species)
    
@@ -414,7 +439,7 @@ int whatSpecies(char *str)
    else if(strstr(str,"HPlus1"))   	return HPlus1;
    else if(strstr(str,"HePlus0"))   	return HePlus0;
    else if(strstr(str,"HePlus1"))   	return HePlus1;
-   else if(strstr(str,"HePlus2"))   	return HePlus1;
+   else if(strstr(str,"HePlus2"))   	return HePlus2;
    else if(strstr(str,"CPlus0"))   	return CPlus0;
    else if(strstr(str,"CPlus1"))   	return CPlus1;
    else if(strstr(str,"CPlus2"))   	return CPlus2;
@@ -445,12 +470,12 @@ double whatMass(int species)
 
 int whatCharge(int species)
 {
-   if(species == Electron) 		return -1;
+   if(species == Electron) 			return -1;
    else if(species == HPlus0)  		return 0;
    else if(species == HPlus1)  		return 1;
-   else if(species == HePlus0)  	return 0;
-   else if(species == HePlus1)  	return 1;
-   else if(species == HePlus2)  	return 2;
+   else if(species == HePlus0)  		return 0;
+   else if(species == HePlus1)  		return 1;
+   else if(species == HePlus2)  		return 2;
    else if(species == CPlus0) 	 	return 0;
    else if(species == CPlus1) 	 	return 1;
    else if(species == CPlus2) 	 	return 2;
@@ -459,6 +484,24 @@ int whatCharge(int species)
    else if(species == CPlus5) 	 	return 5;
    else if(species == CPlus6) 	 	return 6;
    else {  printf("Species' charge not defined\n");  exit(0);  }
+}
+
+//The number is total speces number for ionization.
+int whatSnumber(char *str) {
+   if(strstr(str,"Electron")) 		return 0;
+   else if(strstr(str,"HPlus0"))   	return 2;
+   else if(strstr(str,"HPlus1"))   	return 1;
+   else if(strstr(str,"HePlus0"))   return 3;
+   else if(strstr(str,"HePlus1"))   return 2;
+   else if(strstr(str,"HePlus2"))   return 1;
+   else if(strstr(str,"CPlus0"))   	return 7;
+   else if(strstr(str,"CPlus1"))   	return 6;
+   else if(strstr(str,"CPlus2"))   	return 5;
+   else if(strstr(str,"CPlus3"))   	return 4;
+   else if(strstr(str,"CPlus4"))   	return 3;
+   else if(strstr(str,"CPlus5"))   	return 2;
+   else if(strstr(str,"CPlus6"))   	return 1;
+   else 										return userDefined;
 }
 
 double whatIoniEnergy(int species)
