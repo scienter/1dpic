@@ -8,7 +8,7 @@
 #include <math.h>
 
 
-void parameterSetting(Domain *D,External *Ext, char *input)
+void parameterSetting(Domain *D,External *Ext,Ionization *I, char *input)
 {
    int FindParameters();
    int findLoadParameters();
@@ -121,6 +121,17 @@ void parameterSetting(Domain *D,External *Ext, char *input)
       printf("In [Domain], divisionLambda=? [number of devided wavelength]\n");
       fail=1;
    }
+
+   //Field ionization
+   if(FindParameters("Ionization",1,"l",input,str)) I->l=atoi(str);
+   else 	I->l=0; 
+   if(FindParameters("Ionization",1,"m",input,str)) I->m=atoi(str);
+   else 	I->m=0; 
+   if(FindParameters("Ionization",1,"numberOfMaterials",input,str)) 
+     I->numberOfMaterials=atoi(str);
+   else 	I->numberOfMaterials=0; 
+   
+
 
    //External field parameter setting
    if(FindParameters("External",1,"E1",input,str)) Ext->E1=atof(str);
@@ -448,5 +459,24 @@ int whatCharge(int species)
    else if(species == CPlus5) 	 	return 5;
    else if(species == CPlus6) 	 	return 6;
    else {  printf("Species' charge not defined\n");  exit(0);  }
+}
+
+double whatIoniEnergy(int species)
+//eV unit
+{
+   if(species == Electron) 		return 0.0;
+   else if(species == HPlus0)  		return 13.6;
+   else if(species == HPlus1)  		return 0;
+   else if(species == HePlus0)  	return 24.6;
+   else if(species == HePlus1)  	return 54.4;
+   else if(species == HePlus2)  	return 0;
+   else if(species == CPlus0) 	 	return 11.3;
+   else if(species == CPlus1) 	 	return 24.4;
+   else if(species == CPlus2) 	 	return 47.9;
+   else if(species == CPlus3) 	 	return 64.5;
+   else if(species == CPlus4) 	 	return 392.0;
+   else if(species == CPlus5) 	 	return 489.8;
+   else if(species == CPlus6) 	 	return 0;
+   else {  printf("Species' ionization energy is not defined\n");  exit(0);  }
 }
 

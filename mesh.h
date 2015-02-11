@@ -123,3 +123,22 @@ typedef struct _External
    float Sl;
 
 }  External;
+
+
+typedef struct _Ionization
+{
+   int l;
+   int m;
+   int numberOfMaterials;
+   int matS1;
+   int matS2;
+   int matS3;
+   int totalS;
+   float *ioniEnergy;
+   float *massS;
+   float *matMass;
+   int *qS;
+   int *matQ;
+   int *Z;
+
+}  Ionization;

@@ -39,6 +39,8 @@ typedef struct _LoadList  {
    float temperature;
    int withNextSpcs;
    int withPrevSpcs;
-
+   
+   float ioniEnergy;
+  
    struct _LoadList *next;
 } LoadList;

@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     Probe P;
     LaserList *L;  
     External Ext;
+    Ionization I;
     FieldElement *field;
     int myrank, nTasks;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
     else  filterStep=10;
 
     //parameter setting
-    parameterSetting(&D,&Ext,argv[1]);
+    parameterSetting(&D,&Ext,&I,argv[1]);
 
 
     //create mesh
