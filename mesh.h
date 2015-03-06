@@ -1,4 +1,6 @@
 #include "particle.h"
+#define ON 	1
+#define OFF	0
 
 typedef struct _Domain 
 {
@@ -9,6 +11,7 @@ typedef struct _Domain
    int saveStep;
    int saveStart;
    int fieldSave;
+   int ramanSave;
    int particleSave;
    int rhoSave;
    int currentSave;
