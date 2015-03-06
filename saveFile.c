@@ -129,17 +129,18 @@ void saveRho(Domain *D,int iteration)
     LL=D->loadList;
     while(LL->next)
     {
-       rho0[s]=LL->charge*LL->density/((float)LL->numberInCell);
+       rho0[s]=LL->density/((float)LL->numberInCell);
        LL=LL->next;
        s++;
     }
 
-    //initializing density
-    for(i=0; i<D->nxSub+3; i++)
-       particle[i].rho=0;
 
     for(s=0; s<D->nSpecies; s++)
     {
+       //initializing density
+       for(i=0; i<D->nxSub+3; i++)
+         particle[i].rho=0;
+
        for(i=2; i<D->nxSub+2; i++)
        {
           p=particle[i].head[s]->pt;
@@ -152,7 +153,7 @@ void saveRho(Domain *D,int iteration)
           }
        }
 
-       sprintf(name,"rho%d_%d",iteration,myrank);
+       sprintf(name,"%drho%d_%d",s,iteration,myrank);
        out = fopen(name,"w");    
        for(i=2; i<D->nxSub+2; i++)
        {

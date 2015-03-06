@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     while(iteration<=D.maxStep)
     {   
        //probe data
-//       probe(&D,iteration);
+       probe(&D,iteration);
 //       if(D.probeNum>0)
 //         findProbeParticle(&D);
 
@@ -125,9 +125,13 @@ exit(0);
        {
           if(D.fieldSave==1)  {
             saveField(&D,iteration);
-            saveRaman(&D,iteration);
             if(myrank==0)
               printf("field%d is made. \n",iteration);
+          }
+          if(D.ramanSave==1)  {
+            saveRaman(&D,iteration);
+            if(myrank==0)
+              printf("raman%d is made. \n",iteration);
           }
           if(D.particleSave==1)  {
             saveParticle(&D,iteration);
@@ -160,7 +164,10 @@ exit(0);
        if(D.boostOn==0)   {
          L=D.laserList;
          while(L->next)  {
-           loadLaser(&D,L,&Ext,t);
+           if(L->addition==ON)
+             addLoadLaser(&D,L,&Ext,t);
+           else 
+             loadLaser(&D,L,&Ext,t);
            L=L->next;
          }
        }  
@@ -173,9 +180,6 @@ exit(0);
          interpolation_1st(&D,&Ext);
        else if(D.interpolationType==2)
          interpolation_2nd(&D,&Ext);
-
-       //field Ionization
-       fieldIonization(&D,&I);
 
        //particle push
        particlePush(&D);
@@ -214,6 +218,9 @@ exit(0);
        MPI_TransferP_Xminus(&D);
        MPI_TransferP_Xplus(&D);
        removeEdge(&D);
+
+       //field Ionization
+       fieldIonization(&D,&I);
 
        //time update
        t+=D.dt;  

@@ -68,6 +68,8 @@ void parameterSetting(Domain *D,External *Ext,Ionization *I, char *input)
    }
    if(FindParameters("Domain",1,"fieldSave",input,str)) D->fieldSave=atoi(str);
    else  D->fieldSave=1;
+   if(FindParameters("Domain",1,"ramanSave",input,str)) D->ramanSave=atoi(str);
+   else  D->ramanSave=1;
    if(FindParameters("Domain",1,"particleSave",input,str)) D->particleSave=atoi(str);
    else  D->particleSave=1;
    if(FindParameters("Domain",1,"rhoSave",input,str)) D->rhoSave=atoi(str);
@@ -281,6 +283,7 @@ int findLaserParameters(int rank, LaserList *L,Domain *D,char *input)
    int FindParameters();
    float position;
    char name[100], str[100];
+   int whatONOFF();
    int fail=0,polarity;
 
    if(FindParameters("Laser",rank,"polarity",input,str)) polarity=atoi(str);
@@ -322,6 +325,15 @@ int findLaserParameters(int rank, LaserList *L,Domain *D,char *input)
         fail=1;
      }
 
+    // 20150219 mshur
+     if(FindParameters("Laser",rank,"phase",input,str)) L->phs=atof(str);
+     else  L->phs=0.0; 
+    //---------------
+    
+     if(FindParameters("Laser",rank,"addition",input,str)) 
+       L->addition=whatONOFF(str);
+     else  L->addition=OFF;
+
      //additional laser parameters
      L->polarity=polarity;
      L->omega=2*pi*velocityC/L->lambda;
@@ -339,6 +351,7 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
    double whatMass();
    float pointPosition;
    int whatCharge();
+   double whatIoniEnergy();
    char name[100], str[100];
    int i,species,fail=0;
 
@@ -420,9 +433,9 @@ int findLoadParameters(int rank, LoadList *LL,Domain *D,char *input)
       LL->charge=whatCharge(species);
       LL->criticalDensity=eps0*eMass*D->omega*D->omega/eCharge/eCharge;
       LL->superP=LL->density*D->lambda*D->dx/LL->numberInCell;
+      LL->ioniEnergy=whatIoniEnergy(species);
 
       LL->cnt=1;
-printf("species=%d, charge=%d\n",species,LL->charge);
       
    }	//end of if(species)
    
@@ -430,6 +443,13 @@ printf("species=%d, charge=%d\n",species,LL->charge);
       exit(0);
 
    return species;
+}
+
+int whatONOFF(char *str)
+{
+   if(strstr(str,"ON")) 		return ON;
+   else if(strstr(str,"OFF"))   	return OFF;
+   else {  printf("text must be 'ON' or 'OFF'.\n");  exit(0);  }
 }
 
 int whatSpecies(char *str)
@@ -508,17 +528,17 @@ double whatIoniEnergy(int species)
 //eV unit
 {
    if(species == Electron) 		return 0.0;
-   else if(species == HPlus0)  		return 13.6;
+   else if(species == HPlus0)  		return 13.6/13.6;
    else if(species == HPlus1)  		return 0;
-   else if(species == HePlus0)  	return 24.6;
-   else if(species == HePlus1)  	return 54.4;
+   else if(species == HePlus0)  	return 24.6/13.6;
+   else if(species == HePlus1)  	return 54.4/13.6;
    else if(species == HePlus2)  	return 0;
-   else if(species == CPlus0) 	 	return 11.3;
-   else if(species == CPlus1) 	 	return 24.4;
-   else if(species == CPlus2) 	 	return 47.9;
-   else if(species == CPlus3) 	 	return 64.5;
-   else if(species == CPlus4) 	 	return 392.0;
-   else if(species == CPlus5) 	 	return 489.8;
+   else if(species == CPlus0) 	 	return 11.3/13.6;
+   else if(species == CPlus1) 	 	return 24.4/13.6;
+   else if(species == CPlus2) 	 	return 47.9/13.6;
+   else if(species == CPlus3) 	 	return 64.5/13.6;
+   else if(species == CPlus4) 	 	return 392.0/13.6;
+   else if(species == CPlus5) 	 	return 489.8/13.6;
    else if(species == CPlus6) 	 	return 0;
    else {  printf("Species' ionization energy is not defined\n");  exit(0);  }
 }
